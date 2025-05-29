@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "com.cir.mixin.client",
+	"compatibilityLevel": "JAVA_21",
+	"client": [
+      "IncomaticClientMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

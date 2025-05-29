@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "com.cir.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"IncomaticMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
