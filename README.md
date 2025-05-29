@@ -1,29 +1,89 @@
-# Incomatic
+# Create Multi-Loader Addon Template
+A template based on Architectury for creating addons for Create on Forge and Fabric simultaneously.
 
-Incomatic is an industrial-inspired Minecraft mod, designed for seamless compatibility with Create. The focus of Incomatic is to introduce factory blocks that let you pump in resources, processed goods, and more, turning them directly into in-game money. The mod serves as a foundation for advanced automation, economy systems, and expandable gameplay.
+## How does it work?
+This template is powered by the [Architectury](https://github.com/architectury) toolchain.
+Architectury allows developers to create the majority of their mod in common, loader-agnostic code that
+only touches Minecraft itself. This can be found in the [common](../create-multiloader-addon-template/common) subproject. Each loader target 
+also has its own subproject: those being [forge](../create-multiloader-addon-template/forge) and [fabric](../create-multiloader-addon-template/fabric). (Quilt support: you 
+shouldn't need anything special and the Fabric version should work fine, but it is possible to add a 
+`quilt` subproject if needed.) These loader-specific projects bridge between their respective loaders 
+and the common code.
+
+This system can be extended to work with Create as well as plain Minecraft. The common project gives
+access to most of Create, Registrate, and Flywheel.
+
+## Limitations
+Minecraft has a lot of differences across loaders. You'll need to manage these differences using
+abstractions. Architectury does provide an [API](https://github.com/architectury/architectury-api)
+which you may use if desired, but it means you have another dependency to worry about.
+
+This also applies to Create, which underwent significant changes in porting to Fabric. This means a lot 
+of it will be different between loaders. The `common` project is only capable of referencing the code 
+on one loader (Fabric in this template), so you should be careful to not reference things that don't 
+exist on the other one. Test often, and check the code on both loaders. When you do need to use these 
+changed things, that leads us to...
+
+## Solutions
+There's a bunch of ways to work around the differences.
+
+First is Architectury API. It provides cross-loader abstractions that can be used in common code for
+a decent amount of Minecraft. However, it means you need to worry about another dependency. It also
+doesn't really help with Create.
+
+Next is the `@ExpectPlatform` annotation. It allows the implementation of a method to be replaced
+at compile time per-loader, letting you make your own abstractions. It is part of the Architectury
+plugin and does not cause an extra dependency. However, it can only be placed on static methods. See 
+[ExampleExpectPlatform](../create-multiloader-addon-template/common/src/main/java/net//ExampleExpectPlatform.java) in common 
+for an example.
+
+Finally, simply have a common interface with implementation based on the loader. You might have a
+`PlatformHelper` common interface, with a static instance somewhere. On Fabric, set it to a
+`FabricPlatformHelper`, and a `ForgePlatformHelper` on Forge. The implementation is kept as a detail
+so you can use your helper from common code.
 
 ## Features
+- Access to Create and all of its dependencies on both loaders
+- Automatic build workflow with GitHub Actions
+- Developer QOL: Mod Menu, recipe viewers
 
-- **Factory Blocks**: These core blocks accept items—raw resources or finished products—through Create's transportation systems (belts, pipes, etc.). Items sent into the block are converted into currency automatically.
-- **Automation Ready**: Built from the ground up to work smoothly with Create mod’s automation components, allowing for efficient, hands-off factories.
-- **Flexible Economy**: Item values are configurable, so server owners or single players can define how much money each item type earns.
-- **Upgradable Foundation**: Incomatic is designed to expand over time, with plans for advanced trade, new economic interactions, and more customizable factory content.
+## Use
+Ready to get started? First you'll want to create a new repository using this template. You can do it
+through GitHub with the big green button near the top that says `Use this template`. 
 
-## Getting Started
+Once you've got your repository set up, you'll want to change all the branding to your mod instead 
+of the template. Every `Incomatic`, every placeholder. 
 
-1. **Install Create and Incomatic**: Add both mods to your mods folder. Make sure the Create mod is installed for full compatibility.
-2. **Build Your Factory**: Place Incomatic factory blocks and use the Create mod’s machinery to transport items into them.
-3. **Earn Money**: Any item piped or pumped into the blocks will generate in-game money, ready for collection or use.
+You're free to change your license: CC0 lets you do whatever you want. Base Create is MIT, for reference. 
 
-## Compatibility
+Replace this README with information about your addon. Give it an icon and change the metadata in the 
+[fabric.mod.json](../create-multiloader-addon-template/fabric/src/main/resources/fabric.mod.json) and the
+[mods.toml](../create-multiloader-addon-template/forge/src/main/resources/META-INF/mods.toml).
 
-- **Create**: Direct and full support for Create’s item handling and automation tools.
-- **Other Mods**: Generic item compatibility so any item transported into a factory block can be processed, with more tailored support planned for the future.
+Configure your dependencies. Each subproject `build.gradle` has optional dependencies commented.
+Either remove them or uncomment them. For Fabric, set your preferred recipe viewer with 
+`fabric_recipe_viewer` in the root [gradle.properties](gradle.properties).
 
-## Contribution
+Remember to remove any example code you don't need anymore.
 
-Incomatic is open for suggestions and collaborative development. Feature ideas, compatibility requests, and code contributions are all welcome as the mod grows.
+Get modding!
+
+## Notes
+- Architectury does not merge jars; When you build, you get separate jars for each loader.
+  There is an independent project that can merge these into one if desired called
+  [Forgix](https://github.com/PacifistMC/Forgix).
+- The file names and versions of jars are configured in the root [build.gradle](build.gradle). Feel 
+free to change the format if desired, but make sure it follows SemVer to work well on Fabric.
+- When publishing, you should always let GitHub Actions build your release jars. These jars are built in predictable
+environments and have build metadata.
+
+## Other Templates
+- [Fabric-only template](https://github.com/Fabricators-of-Create/create-fabric-addon-template)
+- [Forge-only template](https://github.com/kotakotik22/CreateAddonTemplate)
+
+## Help
+Questions? Join us in the #devchat channel of the [Create Discord](https://discord.com/invite/hmaD7Se).
 
 ## License
 
-This project is licensed under CC0 license. Please check the license for more details.
+This template is available under the CC0 license. Feel free to do as you wish with it.
